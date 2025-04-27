@@ -3,9 +3,9 @@
 export default $config({
     app(input) {
         return {
-            name: 'sst',
+            name: 'rift',
             removal: input?.stage === 'production' ? 'retain' : 'remove',
-            // protect: ['production'].includes(input?.stage),
+            protect: ['production'].includes(input?.stage),
             home: 'aws',
         };
     },
@@ -19,6 +19,7 @@ export default $config({
         // API Gateway with CORS restricting to allowedOrigins
         const tokenColorsFunction = new sst.aws.Function('RiftTokenColorsFunction', {
             handler: 'functions/token-colors.handler',
+            nodejs: { install: ['sharp'] },
             environment: {
                 STAGE: stage,
             },
@@ -30,5 +31,9 @@ export default $config({
                 },
             },
         });
+
+        return {
+            tokenColorsUrl: tokenColorsFunction.url,
+        };
     },
 });

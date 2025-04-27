@@ -90,13 +90,28 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
         // Pick colors
         const vibrantHex = palette.Vibrant?.hex;
         const darkVibrantHex = palette.DarkVibrant?.hex;
+        const lightVibrantHex = palette.LightVibrant?.hex;
         const mutedHex = palette.Muted?.hex;
+        const darkMutedHex = palette.DarkMuted?.hex;
+        const lightMutedHex = palette.LightMuted?.hex;
 
         const borderColor = vibrantHex || mutedHex || '#666666';
         let bgColor = darkVibrantHex || vibrantHex || mutedHex || '#333333';
         bgColor = ensureDarkEnoughColor(bgColor);
 
-        const result = { borderColor, bgColor, palette, stage: process.env.STAGE };
+        const result = {
+            stage: process.env.STAGE,
+            borderColor,
+            bgColor,
+            palette: {
+                vibrantHex,
+                darkVibrantHex,
+                lightVibrantHex,
+                mutedHex,
+                darkMutedHex,
+                lightMutedHex,
+            },
+        };
         cache.set(rawUrl, result);
 
         return {
