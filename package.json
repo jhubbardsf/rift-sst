@@ -1,8 +1,9 @@
 {
   "scripts": {
-    "dev": "bun run --watch index.ts",
-    "deploy:production": "sst deploy --target RiftTokenColorsFunction --stage production",
-    "deploy:development": "sst deploy --stage development"
+    "dev": "bun sst dev",
+    "deploy": "sst deploy",
+    "deploy:development": "sst deploy --stage development",
+    "deploy:production": "sst deploy --stage production"
   },
   "name": "rift-sst",
   "module": "index.ts",
