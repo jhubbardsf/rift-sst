@@ -1,4 +1,4 @@
-import { ApiHandler } from "sst/node/api";
+import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { Vibrant } from 'node-vibrant/node';
 import Sharp from 'sharp';
 
@@ -16,20 +16,33 @@ function ensureDarkEnoughColor(hex: string, minLum: number = 0.5): string {
         const newR = Math.floor(r * factor * 255);
         const newG = Math.floor(g * factor * 255);
         const newB = Math.floor(b * factor * 255);
-        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB
+            .toString(16)
+            .padStart(2, '0')}`;
     }
     return hex;
 }
 
-export const handler = ApiHandler(async (evt) => {
-    const queryParams = evt.queryStringParameters || {};
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyStructuredResultV2> => {
+    if (event.requestContext.http.method !== 'GET') {
+        return {
+            statusCode: 405,
+            headers: {
+                'Content-Type': 'application/json',
+                Allow: 'GET',
+            },
+            body: JSON.stringify({ error: 'Method Not Allowed' }),
+        };
+    }
+
+    const queryParams = event.queryStringParameters || {};
     const rawUrl = queryParams.url;
 
     if (!rawUrl) {
         return {
             statusCode: 400,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Missing `url` query parameter' }),
-            headers: { 'Content-Type': 'application/json' }
         };
     }
 
@@ -37,11 +50,11 @@ export const handler = ApiHandler(async (evt) => {
     if (cache.has(rawUrl)) {
         return {
             statusCode: 200,
-            body: JSON.stringify(cache.get(rawUrl)),
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 's-maxage=86400, stale-while-revalidate'
-            }
+                'Cache-Control': 's-maxage=86400, stale-while-revalidate',
+            },
+            body: JSON.stringify(cache.get(rawUrl)),
         };
     }
 
@@ -50,8 +63,8 @@ export const handler = ApiHandler(async (evt) => {
         if (!response.ok) {
             return {
                 statusCode: response.status,
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ error: `Fetch failed: ${response.statusText}` }),
-                headers: { 'Content-Type': 'application/json' }
             };
         }
 
@@ -85,18 +98,18 @@ export const handler = ApiHandler(async (evt) => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify(result),
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 's-maxage=86400, stale-while-revalidate'
-            }
+                'Cache-Control': 's-maxage=86400, stale-while-revalidate',
+            },
+            body: JSON.stringify(result),
         };
     } catch (err: any) {
         console.error('Palette extraction error:', err);
         return {
             statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Unable to process image' }),
-            headers: { 'Content-Type': 'application/json' }
         };
     }
-});
+};

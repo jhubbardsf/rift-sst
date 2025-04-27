@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "dev": "bun run --watch index.ts"
+    "dev": "bun run --watch index.ts",
+    "dev:token-colors": "bun run --watch local-dev.ts",
+    "sst:dev": "sst dev"
   },
   "name": "sst",
   "module": "index.ts",

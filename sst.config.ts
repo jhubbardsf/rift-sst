@@ -11,7 +11,6 @@ export default $config({
     },
     async run() {
         const vpc = new sst.aws.Vpc('MyVpc');
-
         const cluster = new sst.aws.Cluster('MyCluster', { vpc });
         const service = new sst.aws.Service('MyService', {
             cluster,
@@ -22,7 +21,6 @@ export default $config({
                 command: 'bun dev',
             },
         });
-
         // Token colors API endpoint
         const tokenColorsApi = new sst.aws.Function('TokenColorsFunction', {
             handler: 'functions/token-colors.handler',
