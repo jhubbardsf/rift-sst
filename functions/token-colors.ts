@@ -39,12 +39,15 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     const rawUrl = queryParams.url;
 
     if (!rawUrl) {
+        console.log('Missing `url` query parameter');
         return {
             statusCode: 400,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Missing `url` query parameter' }),
         };
     }
+
+    console.log('rawUrl', rawUrl);
 
     // Return cached result if available
     if (cache.has(rawUrl)) {
@@ -93,7 +96,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
         let bgColor = darkVibrantHex || vibrantHex || mutedHex || '#333333';
         bgColor = ensureDarkEnoughColor(bgColor);
 
-        const result = { borderColor, bgColor };
+        const result = { borderColor, bgColor, palette, stage: process.env.STAGE };
         cache.set(rawUrl, result);
 
         return {

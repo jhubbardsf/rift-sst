@@ -1,8 +1,8 @@
 {
   "scripts": {
     "dev": "bun run --watch index.ts",
-    "dev:token-colors": "bun run --watch local-dev.ts",
-    "sst:dev": "sst dev"
+    "deploy:production": "sst deploy --target RiftTokenColorsFunction --stage production",
+    "deploy:development": "sst deploy --stage development"
   },
   "name": "sst",
   "module": "index.ts",

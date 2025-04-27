@@ -5,18 +5,18 @@
 
 declare module "sst" {
   export interface Resource {
-    "MyService": {
+    "RiftService": {
       "service": string
       "type": "sst.aws.Service"
       "url": string
     }
-    "MyVpc": {
-      "type": "sst.aws.Vpc"
-    }
-    "TokenColorsFunction": {
+    "RiftTokenColorsFunction": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
+    }
+    "RiftVpc": {
+      "type": "sst.aws.Vpc"
     }
   }
 }

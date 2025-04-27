@@ -5,31 +5,30 @@ export default $config({
         return {
             name: 'sst',
             removal: input?.stage === 'production' ? 'retain' : 'remove',
-            protect: ['production'].includes(input?.stage),
+            // protect: ['production'].includes(input?.stage),
             home: 'aws',
         };
     },
     async run() {
-        const vpc = new sst.aws.Vpc('MyVpc');
-        const cluster = new sst.aws.Cluster('MyCluster', { vpc });
-        const service = new sst.aws.Service('MyService', {
-            cluster,
-            loadBalancer: {
-                ports: [{ listen: '80/http', forward: '3000/http' }],
-            },
-            dev: {
-                command: 'bun dev',
-            },
-        });
-        // Token colors API endpoint
-        const tokenColorsApi = new sst.aws.Function('TokenColorsFunction', {
-            handler: 'functions/token-colors.handler',
-            url: true,
-        });
+        // Get stage from context or default to development
+        const stage = process.env.SST_STAGE || 'development';
 
-        return {
-            serviceUrl: service.url,
-            tokenColorsUrl: tokenColorsApi.url,
-        };
+        // Define allowed origins per stage (exclude localhost)
+        const allowedOrigins = stage === 'production' ? ['https://app.rift.exchange', 'https://rift.exchange'] : ['*'];
+
+        // API Gateway with CORS restricting to allowedOrigins
+        const tokenColorsFunction = new sst.aws.Function('RiftTokenColorsFunction', {
+            handler: 'functions/token-colors.handler',
+            environment: {
+                STAGE: stage,
+            },
+            url: {
+                cors: {
+                    allowOrigins: allowedOrigins,
+                    allowMethods: ['GET'],
+                    allowHeaders: ['*'],
+                },
+            },
+        });
     },
 });
